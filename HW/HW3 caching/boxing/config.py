@@ -14,7 +14,7 @@ class ProductionConfig():
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', "sqlite:////app/db/app.db")  # Production database URI from environment
 
-class TestConfig():
+class TestConfig(ProductionConfig):
     """Testing configuration."""
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'  # Use in-memory database for tests
