@@ -157,7 +157,7 @@ class RingModel:
                 self._ttl[boxer_id] = now + self.ttl_seconds
             else:
                 logger.debug(f"Using cached boxer {boxer_id} (TTL valid).")
-            boxer.append(self._boxer_cache[boxer_id])
+            boxers.append(self._boxer_cache[boxer_id])
         logger.info(f"Retrieved {len(boxers)} boxers from the ring.")
         return boxers
 
