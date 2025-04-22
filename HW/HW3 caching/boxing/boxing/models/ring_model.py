@@ -31,7 +31,10 @@ class RingModel:
             ttl_seconds (int): The time-to-live in seconds for the cached boxer objects.
 
         """
-        pass
+        self.ring: List[int] = []
+        self._boxer_cache: dict[int, Boxers] = {}
+        self._ttl: dict[int, float] = {}
+        self.ttl_seconds = int(os.getenv("TTL", 60))
 
     def fight(self) -> str:
         """Simulates a fight between two combatants.
@@ -114,13 +117,20 @@ class RingModel:
             logger.error(f"Attempted to add boxer ID {boxer_id} but the ring is full")
 
         try:
-            boxer = Boxers.get_boxer_by_id(boxer_id)
+            now = time.time()
+            if boxer_id in self._boxer_cache and self._ttl.get(boxer_id, 0) > now:
+                boxer = self._boxer_cache[boxer_id]
+                logger.debug(f"Boxer ID {boxer_id} from cache")
+            else:
+                boxer = Boxers.get_boxer_by_id(boxer_id)
+                self._boxer_cache[boxer_id] = boxer
+                self._ttl[boxer_id] = now + self.ttl_seconds
         except ValueError as e:
             logger.error(str(e))
             raise
 
+        self.ring.append(boxer_id)
         logger.info(f"Adding boxer '{boxer.name}' (ID {boxer_id}) to the ring")
-
         logger.info(f"Current boxers in the ring: {[Boxers.get_boxer_by_id(b).name for b in self.ring]}")
 
 
