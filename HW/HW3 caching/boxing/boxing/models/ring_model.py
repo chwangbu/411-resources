@@ -143,16 +143,23 @@ class RingModel:
         """
         if not self.ring:
             logger.warning("Retrieving boxers from an empty ring.")
-        else:
-            logger.info(f"Retrieving {len(self.ring)} boxers from the ring.")
+            return []
+        
+        logger.info(f"Retrieving {len(self.ring)} boxers from the ring.")
+        boxers = []
+        now = time.time()
 
         for boxer_id in self.ring:
-            if expired:
+            if boxer_id not in self._ttl or self._ttl[boxer_id] < now:
                 logger.info(f"TTL expired or missing for boxer {boxer_id}. Refreshing from DB.")
+                boxer = Boxers.get_boxer_by_id(boxer_id)
+                self._boxer_cache[boxer_id] = boxer
+                self._ttl[boxer_id] = now + self.ttl_seconds
             else:
                 logger.debug(f"Using cached boxer {boxer_id} (TTL valid).")
-
+            boxer.append(self._boxer_cache[boxer_id])
         logger.info(f"Retrieved {len(boxers)} boxers from the ring.")
+        return boxers
 
     def get_fighting_skill(self, boxer: Boxers) -> float:
         """Calculates the fighting skill for a boxer based on arbitrary rules.
@@ -183,3 +190,5 @@ class RingModel:
 
         """
         logger.info("Clearing local boxer cache in RingModel.")
+        self._boxer_cache.clear()
+        self._ttl.clear()
