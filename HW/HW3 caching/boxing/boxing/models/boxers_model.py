@@ -90,6 +90,8 @@ class Boxers(db.Model):
             return "Middleweight"
         elif weight <= 175:
             return "Lightheavy Weight"
+        elif weight == 200:
+            return "Cruiserweight"
         else:
             return "Heavyweight"
 
