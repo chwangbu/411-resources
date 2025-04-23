@@ -23,10 +23,16 @@ def sample_boxer2(session):
     session.add(boxer)
     session.commit()
     return boxer
+@pytest.fixture
+def sample_boxer3_fail(session):
+     boxer = Boxers(name="Fake Guy", weight=124, height=178, reach=71, age=25)
+     session.add(boxer)
+     session.commit()
+     return boxer
 
 @pytest.fixture
-def sample_boxers(sample_boxer1, sample_boxer2):
-    return [sample_boxer1, sample_boxer2]
+def sample_boxers(sample_boxer1, sample_boxer2, sample_boxer3_fail):
+    return [sample_boxer1, sample_boxer2, sample_boxer3_fail]
 
 # --- Ring Clear ---
 
